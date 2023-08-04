@@ -1,0 +1,32 @@
+version: '3.1'
+services:
+  db:
+    image: postgres:15.3-bullseye
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: eddie
+      POSTGRES_USER: eddie
+    ports: 
+      - "5434:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    networks:
+      net-example:
+        aliases:
+          - postgredb
+
+  example:
+    image: example:new
+    restart: always
+    volumes:
+      - ./sql:/sql
+    # ports:
+    #   - 8080:8080
+    command: sh -c "PGPASSWORD=eddie psql -Ueddie -h postgredb -p 5432 -f /sql/example.sql && sleep infinity"
+    networks:
+      net-example:
+        aliases:
+          - postgredb
+
+networks:
+  net-example:
