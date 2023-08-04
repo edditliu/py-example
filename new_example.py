@@ -1,28 +1,70 @@
 import psycopg2
-try:
-    conn = psycopg2.connect("dbname='eddie' user='eddie' host='localhost' password=''")
-except:
-    print("I am unable to connect to the database")
-with conn.cursor() as curs:
-    for num in range(9,1000):
-        id = num
-        name = "robot_NO{}".format(num)
-        sex = "男"
-        if num % 2 == 0:
-            sex = "女"
-        curs.execute(f"update employee set name = '{name}' where id = {id} returning *")
-        curs.execute(f"update employee set sex = '{sex}' where id = {id} returning *")
-        curs.execute("commit")
-    try:
-        curs.execute("select * from employee")
-        pg_rows = curs.fetchall()
-        
-        for pg_row in pg_rows:
-            for index in range(0,11):
-                print(pg_row[index], end='\t| ')
-            print()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
+import yaml
+
+
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "Hello, World!"
+
+@app.route('/v1/employees/<int:id>', methods=['GET'])
+def get_employee(id):
+    with open("postgresql/conf/manager.yaml", 'r') as f:
+        db_config = yaml.load(f, Loader=yaml.FullLoader)
+        postgres_config = db_config['database']['postgresql']
+        host = postgres_config['host'];
+        databaseName = postgres_config['databaseName']
+        username = postgres_config['username']
+        password = postgres_config['password']
+
+        try:
+            conn = psycopg2.connect(dbname=databaseName, user=username, host=host, password=password)
+            with conn.cursor() as curs:
+                    curs.execute("select * from employee where id = " + str(id))
+                    pg_row = curs.fetchone()    
+                    emp = {}
+                    emp['id'] = pg_row[0]
+                    emp['department_id'] = pg_row[1]
+                    emp['name'] = pg_row[2]
+                    return jsonify(emp)
+        except:
+            return jsonify("I am unable to connect to the database")
+    return jsonify("error")
+
+@app.route('/v1/employees', methods=['GET'])
+def get_employees():
+    employees =[]
+    with open("postgresql/conf/manager.yaml", 'r') as f:
+        db_config = yaml.load(f, Loader=yaml.FullLoader)
+        postgres_config = db_config['database']['postgresql']
+        host = postgres_config['host'];
+        databaseName = postgres_config['databaseName']
+        username = postgres_config['username']
+        password = postgres_config['password']
+
+        try:
+            conn = psycopg2.connect(dbname=databaseName, user=username, host=host, password=password)
+        except:
+            print("I am unable to connect to the database")
+        with conn.cursor() as curs:
+                curs.execute("select * from employee")
+                pg_rows = curs.fetchall()
+                for pg_row in pg_rows:
+                    emp = {}
+                    emp['id'] = pg_row[0]
+                    emp['department_id'] = pg_row[1]
+                    emp['name'] = pg_row[2]
+                    employees.append(emp)         
+                return jsonify(employees)
+                
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
 # create a connection using psycopg
 # insert 100 records into employee table
 # update a record in employee table by id 0

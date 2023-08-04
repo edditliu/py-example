@@ -1,0 +1,8 @@
+database:
+  postgresql:
+    password: 
+    username: "eddie"
+    host: "localhost"
+    ports: 5432
+    databaseName: "eddie"
+

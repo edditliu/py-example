@@ -18,11 +18,11 @@ services:
   example:
     image: example:new
     restart: always
-    volumes:
-      - ./sql:/sql
-    # ports:
-    #   - 8080:8080
-    command: sh -c "PGPASSWORD=eddie psql -Ueddie -h postgredb -p 5432 -f /sql/example.sql && sleep infinity"
+    # volumes:
+    #   - ./sql:/sql
+    ports:
+      - 5001:5000
+    # command: sh -c "PGPASSWORD=eddie psql -Ueddie -h postgredb -p 5432 -f /sql/example.sql && python3 new_example.py"
     networks:
       net-example:
         aliases:
