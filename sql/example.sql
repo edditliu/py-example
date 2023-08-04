@@ -5,6 +5,7 @@ CREATE TABLE department (
 	manager varchar(255) NULL
 );
 
+--insert into department
 INSERT INTO department (id,"name","function",manager) VALUES
 	 (1,'r&d','reserch and development','Joseph Martin'),
 	 (2,'sales','sale','Patricia Clark'),
