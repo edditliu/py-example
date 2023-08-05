@@ -1,8 +1,0 @@
-database:
-  postgresql:
-    password: eddie
-    username: "eddie"
-    host: "postgredb"
-    ports: 5432
-    databaseName: "eddie"
-
